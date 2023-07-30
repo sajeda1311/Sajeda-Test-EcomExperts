@@ -286,6 +286,7 @@
                         <cart-remove-button
                           id="Remove-{{ item.index | plus: 1 }}"
                           data-index="{{ item.index | plus: 1 }}"
+                          data-randomnumber="{{ item.properties.randomNumber }}"
                         >
                           <a
                             href="{{ item.url_to_remove }}"

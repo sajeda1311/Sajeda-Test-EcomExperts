@@ -5,7 +5,7 @@ class CartRemoveButton extends HTMLElement {
     this.addEventListener('click', (event) => {
       event.preventDefault();
       const cartItems = this.closest('cart-items') || this.closest('cart-drawer-items');
-      cartItems.updateQuantity(this.dataset.index, 0);
+      cartItems.updateQuantity(this.dataset.index, 0, '', '', this.dataset.randomnumber);
     });
   }
 }
@@ -103,17 +103,35 @@ class CartItems extends HTMLElement {
     ];
   }
 
-  updateQuantity(line, quantity, name, variantId) {
+  updateQuantity(line, quantity, name, variantId, randomNumber) {
     this.enableLoading(line);
 
+    /* Create random_number variable to remove bundle product */
+    let randomNumer = randomNumber || null;
+    var updatedItems = [];
+
+    /* Logic: To remove addOn product if the main product will be removed:
+    Check: 
+      if the remove product randomNumber is matched with the cart item's randomNumber 
+      if it will match then it will push quantity 0 in the array
+      otherwise push item's quantity in the updatedItems array
+    */
+    for (let item of window.cartStrings.cart.items) {
+      if (item.properties.randomNumber == randomNumer)  {
+        updatedItems.push(0);
+      } else {
+        updatedItems.push(item.quantity);
+      }
+    }
+
+    /* Update cart */
     const body = JSON.stringify({
-      line,
-      quantity,
+      'updates': updatedItems,
       sections: this.getSectionsToRender().map((section) => section.section),
       sections_url: window.location.pathname,
     });
 
-    fetch(`${routes.cart_change_url}`, { ...fetchConfig(), ...{ body } })
+    fetch(`${routes.cart_update_url}`, { ...fetchConfig(), ...{ body } })
       .then((response) => {
         return response.text();
       })

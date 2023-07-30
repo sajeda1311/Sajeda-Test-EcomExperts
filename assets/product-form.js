@@ -4,7 +4,7 @@ if (!customElements.get('product-form')) {
     class ProductForm extends HTMLElement {
       constructor() {
         super();
-
+        this.bindEvents();
         this.form = this.querySelector('form');
         this.form.querySelector('[name=id]').disabled = false;
         this.form.addEventListener('submit', this.onSubmitHandler.bind(this));
@@ -14,6 +14,16 @@ if (!customElements.get('product-form')) {
         if (document.querySelector('cart-drawer')) this.submitButton.setAttribute('aria-haspopup', 'dialog');
 
         this.hideErrors = this.dataset.hideErrors === 'true';
+      }
+
+      /* This event is triggered when the product-form component will be injected. 
+        Usage: If there will be any variant selected then it will set the size variant to 'Unselected'.  
+      */
+      bindEvents(evt) {
+        var url = window.location.search;
+        if (url.includes('?variant')) {
+          window.location.href = window.location.pathname;
+        }
       }
 
       onSubmitHandler(evt) {
@@ -30,24 +40,83 @@ if (!customElements.get('product-form')) {
         config.headers['X-Requested-With'] = 'XMLHttpRequest';
         delete config.headers['Content-Type'];
 
-        const formData = new FormData(this.form);
+        /* Set empty array addItems to push the product items */
+        const addItems = [];
+
+        /* Set empty object for addOns to push the addOn item */
+        let addOnJSON = {}
+        let formNewData = new FormData(this.form);
+
+        /* Set flag to false */
+        let addonFlag  = false ;
+
+        /* Get Variants Color and Size to check the condition for bundle functionality  */
+        var variantColor = document.querySelector('[name="options[Color]"]').value;
+        var varinatSize = document.querySelector('[name="options[Size]"]').value;
+
+        /* Check the condition:
+          if variant color is selected as a Black and
+            variant size is selected as a Medium
+          Then set the flag value = true        
+        */
+        if (variantColor == 'Black' && varinatSize == 'Medium') {
+          addonFlag  = true ;
+        }
+
+        /* Create random_number variable for bundle functionality */
+        var random_number = Math.floor(Math.random() * 100 );
+        if(document.querySelector("[data-random]") != null) document.querySelector("[data-random]").remove();
+
+        let node = document.createElement("div");
+        node.innerHTML = `<input data-random type = "hidden" name ="properties[randomNumber]" value="${random_number}">`
+        this.form.appendChild(node);
+
+        addItems.push(JSON.parse(serializeForm(this.form)));
+        random_number = random_number.toString();
+        
+        /* Check if addonFlage value is true or not
+          if its retrun 'true' then the addOn product will be added along with the main product
+        */
+        if(addonFlag == true){
+          addOnJSON = {
+           id: parseInt(document.querySelector("[data-addon-variant-id]").getAttribute("data-addon-variant-id")),
+           quantity:1,
+           properties : {
+             randomNumber: random_number,
+             productType:"sub_product"
+           }
+         }
+         addItems.push(addOnJSON);
+        }
         if (this.cart) {
-          formData.append(
+          let cart = document.createElement("div");
+          cart.innerHTML = this.cart.getSectionsToRender().map((section) => section.id)
+          this.form.appendChild(cart);
+
+          formNewData.append(
             'sections',
             this.cart.getSectionsToRender().map((section) => section.id)
           );
-          formData.append('sections_url', window.location.pathname);
+          formNewData.append('sections_url', window.location.pathname);
           this.cart.setActiveElement(document.activeElement);
         }
-        config.body = formData;
 
-        fetch(`${routes.cart_add_url}`, config)
+        /* Add To Cart */
+        const body = JSON.stringify({
+          items: addItems
+        });
+        let tempbody = JSON.stringify({
+          ...JSON.parse(serializeForm(this.form))
+        });
+        tempbody = JSON.parse(tempbody);
+
+        fetch(`${routes.cart_add_url}`,  { ...fetchConfig('javascript'), body })
           .then((response) => response.json())
           .then((response) => {
             if (response.status) {
               publish(PUB_SUB_EVENTS.cartError, {
                 source: 'product-form',
-                productVariantId: formData.get('id'),
+                productVariantId: formNewData.get('id'),
                 errors: response.errors || response.description,
                 message: response.message,
               });
@@ -66,7 +135,7 @@ if (!customElements.get('product-form')) {
             }
 
             if (!this.error)
-              publish(PUB_SUB_EVENTS.cartUpdate, { source: 'product-form', productVariantId: formData.get('id'), cartData: response });
+              publish(PUB_SUB_EVENTS.cartUpdate, { source: 'product-form', productVariantId: formNewData.get('id'), cartData: response });
             this.error = false;
             const quickAddModal = this.closest('quick-add-modal');
             if (quickAddModal) {
