@@ -59,17 +59,17 @@
         class="disabled"
       {% endif %}
     >
-    {% if option.name == 'Color' %}
-      <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="swatch-label">
-        <span style="background-image: url({{ value | append: '.png' | file_url }})" class="swatch-color-ball"></span> 
-        <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
-      </label>
-    {% else %}
-      <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
-        {{ value -}}
-        <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
-      </label>
-    {% endif %}
+  {% if option.name == 'Color' %}
+    <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="swatch-label">
+      <span style="background-image: url({{ value | append: '.png' | file_url }})" class="swatch-color-ball"></span> 
+      <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
+    </label>
+  {% else %}
+    <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+      {{ value -}}
+      <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
+    </label>
+  {% endif %}
   {%- elsif block.settings.picker_type == 'dropdown' -%}
     <option
       value="{{ value | escape }}"
@@ -85,3 +85,22 @@
     </option>
   {%- endif -%}
 {%- endfor -%}
+
+{% comment %}
+            {%- for value in option.values -%}
+              <input type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                    name="{{ option.name }}"
+                    value="{{ value | escape }}"
+                    form="{{ product_form_id }}"
+                    {% if option.selected_value == value %}checked{% endif %}
+              >
+            {% if product.variants[forloop.index0].metafields.color.values and option.name == 'Color' %}
+              <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" style="background-color: {{product.variants[forloop.index0].metafields.color.values}}"> 
+              </label>
+            {% else %}
+              <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                {{ value }}
+              </label>
+            {% endif %}
+            {%- endfor -%}
+{% endcomment %}
