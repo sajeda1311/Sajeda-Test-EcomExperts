@@ -3511,7 +3511,7 @@ details-disclosure > details {
     --border-offset: 0px; /* Prevent the border from growing on buttons when this effect is on. */
   }
 }
-.swatch-label {
+/* .swatch-label {
   background-color:#c9c1c1 !important;
   border-radius: 5px !important;
 }
@@ -3522,4 +3522,4 @@ details-disclosure > details {
     border-radius: 10px;
     margin-right: 10px;
     box-shadow: 0 3px 5px rgba(0,0,0,.2);
-}
+} */
