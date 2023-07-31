@@ -85,22 +85,3 @@
     </option>
   {%- endif -%}
 {%- endfor -%}
-
-{% comment %}
-            {%- for value in option.values -%}
-              <input type="radio" id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
-                    name="{{ option.name }}"
-                    value="{{ value | escape }}"
-                    form="{{ product_form_id }}"
-                    {% if option.selected_value == value %}checked{% endif %}
-              >
-            {% if product.variants[forloop.index0].metafields.color.values and option.name == 'Color' %}
-              <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" style="background-color: {{product.variants[forloop.index0].metafields.color.values}}"> 
-              </label>
-            {% else %}
-              <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
-                {{ value }}
-              </label>
-            {% endif %}
-            {%- endfor -%}
-{% endcomment %}
