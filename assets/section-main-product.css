@@ -1627,3 +1627,11 @@ a.product__text {
   display: flex;
   flex-direction: row;
 }
+
+.disabled {
+  pointer-events: none;
+}
+
+.d-none {
+  display: none;
+}
