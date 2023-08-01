@@ -20,7 +20,12 @@
   assign variants_option2_arr = product.variants | map: 'option2'
   assign variants_option3_arr = product.variants | map: 'option3'
 -%}
-
+<option
+  value="Unselected"
+  selected="selected"
+>
+  Unselected
+</option>
 {%- for value in option.values -%}
   {%- liquid
     assign option_disabled = true
@@ -45,9 +50,6 @@
 
   <option
     value="{{ value | escape }}"
-    {% if forloop.index == '0' %}
-      selected="selected"
-    {% endif %}
   >
     {% if option_disabled -%}
       {{- 'products.product.value_unavailable' | t: option_value: value -}}
