@@ -4,7 +4,6 @@ if (!customElements.get('product-form')) {
     class ProductForm extends HTMLElement {
       constructor() {
         super();
-        this.bindEvents();
         this.form = this.querySelector('form');
         this.form.querySelector('[name=id]').disabled = false;
         this.form.addEventListener('submit', this.onSubmitHandler.bind(this));
@@ -14,16 +13,6 @@ if (!customElements.get('product-form')) {
         if (document.querySelector('cart-drawer')) this.submitButton.setAttribute('aria-haspopup', 'dialog');
 
         this.hideErrors = this.dataset.hideErrors === 'true';
-      }
-
-      /* This event is triggered when the product-form component will be injected. 
-        Usage: If there will be any variant selected then it will set the size variant to 'Unselected'.  
-      */
-      bindEvents(evt) {
-        var url = window.location.search;
-        if (url.includes('?variant')) {
-          window.location.href = window.location.pathname;
-        }
       }
 
       onSubmitHandler(evt) {
