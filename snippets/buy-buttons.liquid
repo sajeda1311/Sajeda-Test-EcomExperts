@@ -65,10 +65,11 @@
           type="hidden"
           name="id"
           value="{{ product.selected_or_first_available_variant.id }}"
+          data-color-variant=""
           disabled
           class="product-variant-id"
         >
-
+        <input id="color-variant" type="hidden" data-color="Black">
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}

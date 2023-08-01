@@ -980,15 +980,19 @@ class VariantSelects extends HTMLElement {
 
   updateOptions() {
     this.options = Array.from(this.querySelectorAll('select'), (select) => select.value);
+    const fieldsets = Array.from(document.querySelectorAll('product-info variant-radios fieldset'));
+    var moreOption = fieldsets.map((fieldset) => {
+      return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
+    });
+    this.options = [...moreOption, ...this.options];
   }
 
   updateMasterId() {
-    this.currentVariant = this.getVariantData().find((variant) => {
-      return !variant.options
-        .map((option, index) => {
+    var allVariants = this.getVariantData();
+    this.currentVariant = allVariants.find((variant) => {
+      return !variant.options.map((option, index) => {
           return this.options[index] === option;
-        })
-        .includes(false);
+        }).includes(false);
     });
   }
 
@@ -1209,15 +1213,17 @@ class VariantRadios extends VariantSelects {
   }
 
   updateOptions() {
+    this.options = Array.from(document.querySelectorAll('product-info select'), (select) => select.value);
     const fieldsets = Array.from(this.querySelectorAll('fieldset'));
-    this.options = fieldsets.map((fieldset) => {
+    var moreOption = fieldsets.map((fieldset) => {
+      document.querySelector('#color-variant').setAttribute('data-color', Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value);
       return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
     });
+    this.options = [...moreOption, ...this.options];
   }
 }
 
 customElements.define('variant-radios', VariantRadios);
-
 class ProductRecommendations extends HTMLElement {
   constructor() {
     super();

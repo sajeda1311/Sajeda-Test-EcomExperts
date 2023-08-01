@@ -1622,3 +1622,8 @@ a.product__text {
   right: -1px;
   bottom: -1px;
 }
+
+.swatch-ul {
+  display: flex;
+  flex-direction: row;
+}

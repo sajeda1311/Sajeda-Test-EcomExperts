@@ -51,14 +51,15 @@ if (!customElements.get('product-form')) {
         let addonFlag  = false ;
 
         /* Get Variants Color and Size to check the condition for bundle functionality  */
-        var variantColor = document.querySelector('[name="options[Color]"]').value;
-        var varinatSize = document.querySelector('[name="options[Size]"]').value;
+        var variantColor = document.querySelector('#color-variant').getAttribute('data-color');
+        var varinatSize = document.querySelector('[name="options[Size]"]')?.value;
 
         /* Check the condition:
           if variant color is selected as a Black and
             variant size is selected as a Medium
           Then set the flag value = true        
         */
+
         if (variantColor == 'Black' && varinatSize == 'Medium') {
           addonFlag  = true ;
         }
