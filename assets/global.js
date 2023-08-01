@@ -1028,6 +1028,11 @@ class VariantSelects extends HTMLElement {
     );
     productForms.forEach((productForm) => {
       const input = productForm.querySelector('input[name="id"]');
+      var button = productForm.querySelector('.product-form__submit');
+      if (button !== null) {
+        productForm.querySelector('.product-form__submit').classList.remove('disabled');
+        productForm.querySelector('.warning').classList.add('d-none');
+      }
       input.value = this.currentVariant.id;
       input.dispatchEvent(new Event('change', { bubbles: true }));
     });
