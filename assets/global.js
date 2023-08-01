@@ -1031,6 +1031,7 @@ class VariantSelects extends HTMLElement {
       var button = productForm.querySelector('.product-form__submit');
       if (button !== null) {
         productForm.querySelector('.product-form__submit').classList.remove('disabled');
+        if (!productForm.querySelector('.warning')) return;
         productForm.querySelector('.warning').classList.add('d-none');
       }
       input.value = this.currentVariant.id;
