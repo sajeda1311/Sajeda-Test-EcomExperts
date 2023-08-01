@@ -1628,6 +1628,9 @@ a.product__text {
   flex-direction: row;
 }
 
+.warning {
+  color: red;
+}
 .disabled {
   pointer-events: none;
 }
