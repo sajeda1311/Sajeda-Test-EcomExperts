@@ -45,7 +45,7 @@
 
   <option
     value="{{ value | escape }}"
-    {% if option.selected_value == value %}
+    {% if forloop.index == '0' %}
       selected="selected"
     {% endif %}
   >
