@@ -6,7 +6,7 @@
   - product_form_id: {String} product form id.
   - section_id: {String} id of section to which this snippet belongs.
   - show_pickup_availability: {Boolean} for the pickup availability. If true the pickup availability is rendered, false - not rendered (optional).
-
+  - addon: Select addon product for bundle 
   Usage:
   {% render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, section_id: section.id, show_pickup_availability: true %}
 {% endcomment %}
@@ -14,6 +14,7 @@
   {%- if product != blank -%}
     {%- liquid
       assign gift_card_recipient_feature_active = false
+      assign addon = all_products[block.settings.addon_product]
       if block.settings.show_gift_card_recipient and product.gift_card?
         assign gift_card_recipient_feature_active = true
       endif
@@ -51,14 +52,24 @@
         novalidate: 'novalidate',
         data-type: 'add-to-cart-form'
       -%}
+        {%- if addon != blank -%}
+          <input
+            type="hidden"
+            value="{{ addon.selected_or_first_available_variant.id }}"
+            disabled
+            class="product-variant-id"
+            data-addon-variant-id = "{{ addon.selected_or_first_available_variant.id }}"
+          >
+        {%- endif -%}
         <input
           type="hidden"
           name="id"
           value="{{ product.selected_or_first_available_variant.id }}"
+          data-color-variant=""
           disabled
           class="product-variant-id"
         >
-
+        <input id="color-variant" type="hidden" data-color="Black">
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}
@@ -73,11 +84,14 @@
               assign quantity_rule_soldout = true
             endif
           -%}
+            {%- if product.title == 'Handbag' -%}
+              <span class="warning"> Please select the variant size </span>
+            {%- endif -%}
           <button
             id="ProductSubmitButton-{{ section_id }}"
             type="submit"
             name="add"
-            class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
+            class="{% if product.title == 'Handbag' %} disabled {% endif %} product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
             {% if product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
               disabled
             {% endif %}

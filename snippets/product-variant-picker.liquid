@@ -9,40 +9,77 @@
   Usage:
   {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
 {% endcomment %}
+
 {%- unless product.has_only_default_variant -%}
-  {%- if block.settings.picker_type == 'button' -%}
-    <variant-radios
-      id="variant-radios-{{ section.id }}"
-      class="no-js-hidden"
-      data-section="{{ section.id }}"
-      data-url="{{ product.url }}"
-      {% if update_url == false %}
-        data-update-url="false"
-      {% endif %}
-      {{ block.shopify_attributes }}
-    >
-      {%- for option in product.options_with_values -%}
-        <fieldset class="js product-form__input">
+  {%- for option in product.options_with_values -%}
+    {% assign show_swatch = false %}
+    {% if option.name == 'Color' or option.name == 'color' %}
+      {% assign show_swatch = true %}
+    {% endif %}
+    {% if show_swatch %}
+      <variant-radios
+        id="variant-radios-{{ section.id }}"
+        class="no-js-hidden"
+        data-section="{{ section.id }}"
+        data-url="{{ product.url }}"
+        {% if update_url == false %}
+          data-update-url="false"
+        {% endif %}
+        {{ block.shopify_attributes }}
+      >
+        <fieldset
+          class="js product-form__input mb-4 {% if option.name == 'Color' or option.name == 'color' %}color-swatch{% endif %}"
+          data-optionindex="{{ forloop.index }}"
+        >
           <legend class="form__label">{{ option.name }}</legend>
-          {% render 'product-variant-options', product: product, option: option, block: block %}
+          {% comment %} <legend class="form__label px-0 font-family-secondary text-uppercase fw-semibold ls-1 mb-2">{{ option.name }}<span class="selected-option d-none">{{ option.selected_value }}</span></legend> {% endcomment %}
+          <ul class="list-unstyled d-flex my-0 py-0 swatch-ul">
+            {%- for value in option.values -%}
+              {%- capture swatchID -%}swatch-{{ product.id }}{% if format %}-{{ format }}{% endif %}-{{ option.name | handleize }}-{{ value | handleize }}{%- endcapture -%}
+              <li class="me-2">
+                <div class="swatch {% if option.name == 'Color' or option.name == 'color' %}color-swatch{% endif %}">
+                  <input
+                    type="radio"
+                    class="form-control"
+                    id="{{ swatchID }}"
+                    name="{{ option.name }}"
+                    value="{{ value | escape }}"
+                    {% if format == 'grid' and current_variant == false %}
+                      {%- if forloop.first %}checked{% endif -%}
+                    {% else %}
+                      {%- if option.selected_value == value %}checked{% endif -%}
+                    {% endif %}
+                    data-handle="{{ value | handle }}"
+                  >
+                  <label
+                    style="background-image: url({{ value | append: '.png' | file_url }})"
+                    class="form-label swatch-label {{ value }} color-swatch"
+                    for="{{ swatchID }}"
+                    title="{{ value }}"
+                  >
+                    {% unless option.name == 'Color' or option.name == 'color' %} {{ value }} {% endunless %}
+                  </label>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
         </fieldset>
-      {%- endfor -%}
-      <script type="application/json">
-        {{ product.variants | json }}
-      </script>
-    </variant-radios>
-  {%- else -%}
-    <variant-selects
-      id="variant-selects-{{ section.id }}"
-      class="no-js-hidden"
-      data-section="{{ section.id }}"
-      data-url="{{ product.url }}"
-      {% if update_url == false %}
-        data-update-url="false"
-      {% endif %}
-      {{ block.shopify_attributes }}
-    >
-      {%- for option in product.options_with_values -%}
+
+        <script type="application/json">
+          {{ product.variants | json }}
+        </script>
+      </variant-radios>
+    {% else %}
+      <variant-selects
+        id="variant-selects-{{ section.id }}"
+        class="no-js-hidden"
+        data-section="{{ section.id }}"
+        data-url="{{ product.url }}"
+        {% if update_url == false %}
+          data-update-url="false"
+        {% endif %}
+        {{ block.shopify_attributes }}
+      >
         <div class="product-form__input product-form__input--dropdown">
           <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
             {{ option.name }}
@@ -59,13 +96,12 @@
             {% render 'icon-caret' %}
           </div>
         </div>
-      {%- endfor -%}
-
-      <script type="application/json">
-        {{ product.variants | json }}
-      </script>
-    </variant-selects>
-  {%- endif -%}
+        <script type="application/json">
+          {{ product.variants | json }}
+        </script>
+      </variant-selects>
+    {% endif %}
+  {%- endfor -%}
 {%- endunless -%}
 
 <noscript class="product-form__noscript-wrapper-{{ section.id }}">

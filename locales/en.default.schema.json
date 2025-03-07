@@ -1916,6 +1916,14 @@
     "main-product": {
       "name": "Product information",
       "blocks": {
+        "addons": {
+          "name": "AddOns",
+          "settings": {
+            "text": {
+              "label": "Select AddOns Product"
+            }
+          }
+        },
         "text": {
           "name": "Text",
           "settings": {

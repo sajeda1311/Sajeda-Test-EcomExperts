@@ -980,15 +980,19 @@ class VariantSelects extends HTMLElement {
 
   updateOptions() {
     this.options = Array.from(this.querySelectorAll('select'), (select) => select.value);
+    const fieldsets = Array.from(document.querySelectorAll('product-info variant-radios fieldset'));
+    var moreOption = fieldsets.map((fieldset) => {
+      return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
+    });
+    this.options = [...moreOption, ...this.options];
   }
 
   updateMasterId() {
-    this.currentVariant = this.getVariantData().find((variant) => {
-      return !variant.options
-        .map((option, index) => {
+    var allVariants = this.getVariantData();
+    this.currentVariant = allVariants.find((variant) => {
+      return !variant.options.map((option, index) => {
           return this.options[index] === option;
-        })
-        .includes(false);
+        }).includes(false);
     });
   }
 
@@ -1024,6 +1028,12 @@ class VariantSelects extends HTMLElement {
     );
     productForms.forEach((productForm) => {
       const input = productForm.querySelector('input[name="id"]');
+      var button = productForm.querySelector('.product-form__submit');
+      if (button !== null) {
+        productForm.querySelector('.product-form__submit').classList.remove('disabled');
+        if (!productForm.querySelector('.warning')) return;
+        productForm.querySelector('.warning').classList.add('d-none');
+      }
       input.value = this.currentVariant.id;
       input.dispatchEvent(new Event('change', { bubbles: true }));
     });
@@ -1209,15 +1219,17 @@ class VariantRadios extends VariantSelects {
   }
 
   updateOptions() {
+    this.options = Array.from(document.querySelectorAll('product-info select'), (select) => select.value);
     const fieldsets = Array.from(this.querySelectorAll('fieldset'));
-    this.options = fieldsets.map((fieldset) => {
+    var moreOption = fieldsets.map((fieldset) => {
+      document.querySelector('#color-variant').setAttribute('data-color', Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value);
       return Array.from(fieldset.querySelectorAll('input')).find((radio) => radio.checked).value;
     });
+    this.options = [...moreOption, ...this.options];
   }
 }
 
 customElements.define('variant-radios', VariantRadios);
-
 class ProductRecommendations extends HTMLElement {
   constructor() {
     super();
@@ -1257,3 +1269,25 @@ class ProductRecommendations extends HTMLElement {
 }
 
 customElements.define('product-recommendations', ProductRecommendations);
+
+/**
+  * Limit the number of times a function is called within defined timeout
+  *
+  * @param {form} form - Form to serialize
+*/
+const serializeForm = form => {
+  const obj = {};
+  const formData = new FormData(form);
+
+  for (const key of formData.keys()) {
+    const regex = /(?:^(properties\[))(.*?)(?:\]$)/;
+    if (regex.test(key)) {
+      obj.properties = obj.properties || {};
+      obj.properties[regex.exec(key)[2]] = formData.get(key);
+    } else {
+      obj[key] = formData.get(key);
+    }
+  }
+
+  return JSON.stringify(obj);
+};
